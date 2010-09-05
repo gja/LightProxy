@@ -10,17 +10,21 @@ namespace LightProxy
         private readonly AssemblyBuilder assembly;
         private readonly ModuleBuilder module;
         private TypeBuilder newType;
-        private FieldBuilder backingObjectField;
-        private FieldBuilder interceptorsField;
+        private FieldInfo backingObjectField;
+        private FieldInfo interceptorsField;
+        private MethodInfo executeMethod;
 
         public ProxyBuilder(AssemblyBuilder assembly)
         {
             this.assembly = assembly;
             module = assembly.GetDynamicModule("Proxies");
-            
-            newType = module.DefineType(typeof(T).Name, TypeAttributes.Public, typeof(Object), new[] { typeof(T), typeof(ISetBackingObjectAndInterceptors<T>) });
-            backingObjectField = newType.DefineField("backingObject", typeof (T), FieldAttributes.Public);
-            interceptorsField = newType.DefineField("interceptors", typeof (T), FieldAttributes.Public);            
+
+            var parent = typeof (ProxyBase<T>);
+
+            newType = module.DefineType(typeof(T).Name, TypeAttributes.Public, parent, new[] { typeof(T), typeof(ISetBackingObjectAndInterceptors<T>) });
+            backingObjectField = parent.GetField("backingObject");
+            interceptorsField = parent.GetField("interceptors");
+            executeMethod = parent.GetMethod("Execute");
         }
 
         public void GenerateConstructor()

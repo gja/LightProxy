@@ -15,14 +15,14 @@ namespace LightProxy
         {
             if (!generatedClasses.Contains(typeof(T)))
             {
-                BuildClass<T>();
+                GenerateClassDynamically<T>();
                 generatedClasses.Add(typeof (T));
             }
 
             return GetInstance(Assembly, typeof(T), backingObject, interceptors);
         }
 
-        private void BuildClass<T>()
+        private void GenerateClassDynamically<T>()
         {
             using (var builder = new ProxyBuilder<T>(Assembly))
             {
