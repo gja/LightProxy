@@ -28,5 +28,11 @@ namespace LightProxy
             }
             throw new TypeLoadException("Could Not Find Method " + method.Name);
         }
+
+        public void SetBackingObjectAndInterceptors(T backingObject, IInterceptor[] interceptors)
+        {
+            this.backingObject = backingObject;
+            this.interceptors = interceptors;
+        }
     }
 }

@@ -11,8 +11,7 @@ namespace LightProxy
         private readonly AssemblyBuilder assembly;
         private readonly ModuleBuilder module;
         private TypeBuilder newType;
-        private FieldInfo backingObjectField;
-        private FieldInfo interceptorsField;
+        
         private MethodInfo executeMethod;
 
         public ProxyBuilder(AssemblyBuilder assembly)
@@ -22,32 +21,13 @@ namespace LightProxy
 
             var parent = typeof (ProxyBase<T>);
 
-            newType = module.DefineType(typeof(T).Name, TypeAttributes.Public, parent, new[] { typeof(T), typeof(ISetBackingObjectAndInterceptors<T>) });
-            backingObjectField = parent.GetField("backingObject");
-            interceptorsField = parent.GetField("interceptors");
+            newType = module.DefineType(typeof(T).Name, TypeAttributes.Public, parent, new[] { typeof(T) });
             executeMethod = parent.GetMethod("Execute");
         }
 
         public void GenerateConstructor()
         {
             newType.DefineDefaultConstructor(MethodAttributes.Public);
-        }
-
-        public void GenerateSetterMethod()
-        {
-            var method = newType.DefineMethod("__LightProxy_SetMethods", MethodAttributes.Public | MethodAttributes.Virtual, typeof(void), new[] {typeof (T), typeof (IInterceptor[])});
-            var generator = method.GetILGenerator();
-            generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Ldarg_1);
-            generator.Emit(OpCodes.Stfld, backingObjectField);
-
-            generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Ldarg_2);
-            generator.Emit(OpCodes.Stfld, interceptorsField);
-
-            generator.Emit(OpCodes.Ret);
-
-            newType.DefineMethodOverride(method, typeof(ISetBackingObjectAndInterceptors<T>).GetMethods()[0]);
         }
 
         public void OverrideMethod(MethodInfo method)

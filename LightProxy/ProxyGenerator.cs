@@ -28,8 +28,6 @@ namespace LightProxy
             {
                 builder.GenerateConstructor();
 
-                builder.GenerateSetterMethod();
-
                 foreach (var method in typeof(T).GetMethods())
                     builder.OverrideMethod(method);
             }
@@ -38,7 +36,7 @@ namespace LightProxy
         private T GetInstance<T>(AssemblyBuilder assembly, Type type, T backingObject, IInterceptor[] interceptors)
         {
             var instance = assembly.CreateInstance(type.Name);
-            var proxyBase = (ISetBackingObjectAndInterceptors<T>) instance;
+            var proxyBase = (ProxyBase<T>) instance;
             proxyBase.SetBackingObjectAndInterceptors(backingObject, interceptors);
             return (T) instance;
         }
