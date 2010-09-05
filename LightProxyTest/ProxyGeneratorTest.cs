@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace LightProxyTest
 {
-    internal interface IFoo
+    public interface IFoo
     {
         int Foo();
     }
