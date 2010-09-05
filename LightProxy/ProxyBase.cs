@@ -8,9 +8,25 @@ namespace LightProxy
         public T backingObject;
         public IInterceptor[] interceptors;
 
-        public int Execute(MethodInfo method, T backingObject, IInterceptor[] interceptors, object[] arguments)
+        public int Execute(MethodInfo method, object[] arguments)
         {
-            return 42;
+            var interfaceMethod = GetInterfaceMethod(method);
+            
+            return (int) interfaceMethod.Invoke(backingObject, arguments);
+        }
+
+        private MethodInfo GetInterfaceMethod(MethodInfo method)
+        {
+            var map = method.DeclaringType.GetInterfaceMap(typeof (T));
+
+            int i = 0;
+            foreach (var targetMethod in map.TargetMethods)
+            {
+                if (targetMethod == method)
+                    return map.InterfaceMethods[i];
+                i++;
+            }
+            throw new TypeLoadException("Could Not Find Method " + method.Name);
         }
     }
 

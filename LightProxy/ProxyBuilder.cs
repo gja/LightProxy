@@ -62,9 +62,7 @@ namespace LightProxy
 
             generator.LoadSelf();
             
-            generator.LoadNull();
-            generator.LoadField(backingObjectField);
-            generator.LoadField(interceptorsField);
+            generator.Execute(typeof(MethodBase).GetMethod("GetCurrentMethod"));
 
             generator.CreateArray(typeof (Object), count);            
             generator.StashTemporaryVariable(0);
