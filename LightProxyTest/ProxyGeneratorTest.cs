@@ -6,6 +6,7 @@ namespace LightProxyTest
     public interface IFoo
     {
         int Foo();
+        int Bar();
     }
 
     public class Blah : IFoo
@@ -13,6 +14,11 @@ namespace LightProxyTest
         public int Foo()
         {
             return 42;
+        }
+
+        public int Bar()
+        {
+            return 24;
         }
     }
 
@@ -25,6 +31,13 @@ namespace LightProxyTest
         {
             var blah = new ProxyGenerator().GenerateProxy<IFoo>(new Blah());
             blah.Foo().ShouldBe(42);
+        }
+
+        [Test]
+        public void ShouldOverrideAllMembers()
+        {
+            var blah = new ProxyGenerator().GenerateProxy<IFoo>(new Blah());
+            blah.Bar().ShouldBe(24);
         }
     }
 }

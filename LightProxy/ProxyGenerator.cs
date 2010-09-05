@@ -9,68 +9,78 @@ namespace LightProxy
     {
         public T GenerateProxy<T>(T backingObject, params IInterceptor[] interceptors) where T:class 
         {
-            var newAssembly = GetNewAssembly();
-    
-            TypeBuilder newType = GetNewType<T>(newAssembly);
+            var assembly = GetNewAssembly();
 
-//            GenerateConstructor<T>(newType);
-            newType.DefineDefaultConstructor(MethodAttributes.Public);
-
-            var methods = typeof (T).GetMethods();
-
-            foreach(var method in methods)
+            using (var builder = new ProxyBuilder<T>(assembly))
             {
-                var newMethod = newType.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual, method.CallingConvention, method.ReturnType, method.GetGenericArguments());
-                var generator = newMethod.GetILGenerator();
+                builder.GenerateConstructor();
 
-                generator.Emit(OpCodes.Ldc_I4, 42);
-                generator.Emit(OpCodes.Ret);
-
-                newType.DefineMethodOverride(newMethod, method);
+                foreach (var method in typeof(T).GetMethods())
+                    builder.OverrideMethod(method);
             }
 
-            var type = newType.CreateType();
-
-            return GetInstance(newAssembly, type, backingObject, interceptors);
+            return GetInstance(assembly, typeof(T), backingObject, interceptors);
         }
 
         private T GetInstance<T>(AssemblyBuilder assembly, Type type, T backingObject, IInterceptor[] interceptors)
         {
             var instance = assembly.CreateInstance(type.Name);
-            var proxyBase = (ProxyBase<T>) instance;
-            proxyBase.BackingObject = backingObject;
-            proxyBase.Interceptors = interceptors;
+//            var proxyBase = (ProxyBase<T>) instance;
+//            proxyBase.BackingObject = backingObject;
+//            proxyBase.Interceptors = interceptors;
             return (T) instance;
-        }
-
-        private TypeBuilder GetNewType<T>(AssemblyBuilder newAssembly)
-        {
-            var newModule = newAssembly.DefineDynamicModule("Proxies");
-
-            return newModule.DefineType(typeof(T).Name + "Proxy", TypeAttributes.Public, typeof(ProxyBase<T>), new[]{typeof(T)});
         }
 
         private AssemblyBuilder GetNewAssembly()
         {
-            AssemblyName assemblyName = new AssemblyName();
+            var assemblyName = new AssemblyName();
             assemblyName.Name = "LightProxy" + Guid.NewGuid();
-            
-            //Create an assembly with one module
             return Thread.GetDomain().DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
         }
+    }
 
-        private void GenerateConstructor<T>(TypeBuilder newType)
+    public class ProxyBuilder<T> : IDisposable
+    {
+        private readonly AssemblyBuilder assembly;
+        private readonly ModuleBuilder module;
+        private TypeBuilder newType;
+        private FieldBuilder backingObjectField;
+        private FieldBuilder interceptorsField;
+
+        public ProxyBuilder(AssemblyBuilder assembly)
         {
-            var constructorTypes = new[] {typeof (T), typeof (IInterceptor[])};
+            this.assembly = assembly;
+            module = assembly.DefineDynamicModule(typeof(T).Name + "Proxy");
             
-            var constructor = newType.DefineConstructor(MethodAttributes.Public, CallingConventions.Any, constructorTypes);
+            newType = module.DefineType(typeof(T).Name, TypeAttributes.Public, typeof(Object), new[] { typeof(T) });
+            backingObjectField = newType.DefineField("backingObject", typeof (T), FieldAttributes.Family);
+            interceptorsField = newType.DefineField("interceptors", typeof (T), FieldAttributes.Family);            
+        }
 
-            var generator = constructor.GetILGenerator();
-            
-            generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Ldarg_1);
-            generator.Emit(OpCodes.Call, newType.BaseType.GetConstructor(constructorTypes));
+        public void GenerateConstructor()
+        {
+            newType.DefineDefaultConstructor(MethodAttributes.Public);
+        }
+
+        public void OverrideMethod(MethodInfo method)
+        {
+            var newMethod = newType.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual, method.CallingConvention, method.ReturnType, method.GetGenericArguments());
+
+            var generator = newMethod.GetILGenerator();
+            generator.Emit(OpCodes.Ldc_I4, 42);
             generator.Emit(OpCodes.Ret);
+
+            newType.DefineMethodOverride(newMethod, method);
+        }
+
+        public void Build()
+        {
+            newType.CreateType();
+        }
+
+        public void Dispose()
+        {
+            Build();
         }
     }
 }
