@@ -46,7 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IInterceptor.cs" />
-    <Compile Include="ProxyBase.cs" />
+    <Compile Include="ISetBackingObjectAndInterceptors.cs" />
     <Compile Include="ProxyBuilder.cs" />
     <Compile Include="ProxyGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

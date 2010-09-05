@@ -50,7 +50,10 @@ namespace LightProxy
             var newMethod = newType.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual, method.CallingConvention, method.ReturnType, method.GetGenericArguments());
 
             var generator = newMethod.GetILGenerator();
-            generator.Emit(OpCodes.Ldc_I4, 42);
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldfld, backingObjectField);
+//            generator.Emit(OpCodes.Ldc_I4, 42);
+            generator.Emit(OpCodes.Call, method);
             generator.Emit(OpCodes.Ret);
 
             newType.DefineMethodOverride(newMethod, method);

@@ -11,15 +11,8 @@ namespace LightProxyTest
 
     public class Blah : IFoo
     {
-        public int Foo()
-        {
-            return 42;
-        }
-
-        public int Bar()
-        {
-            return 24;
-        }
+        public int Foo() { return 42; }
+        public int Bar() { return 24; }
     }
 
 
@@ -34,20 +27,20 @@ namespace LightProxyTest
         }
 
         [Test]
+        public void ShouldOverrideAllMembers()
+        {
+            var blah = new ProxyGenerator().GenerateProxy<IFoo>(new Blah());
+            blah.Bar().ShouldBe(24);
+        }
+
+        [Test]
         public void ShouldStoreBackingObjectAndInterceptors()
         {
             var backingObject = new Blah();
             var blah = new ProxyGenerator().GenerateProxy<IFoo>(backingObject);
 
             var backing = blah.GetType().GetField("backingObject");
-            backing.GetValue(blah).ShouldBe(backingObject);            
-        }
-
-        [Test]
-        public void ShouldOverrideAllMembers()
-        {
-            var blah = new ProxyGenerator().GenerateProxy<IFoo>(new Blah());
-            blah.Bar().ShouldBe(24);
+            backing.GetValue(blah).ShouldBe(backingObject);
         }
     }
 }
