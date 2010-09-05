@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 
 namespace LightProxy
@@ -23,7 +22,13 @@ namespace LightProxy
         
         public void Continue()
         {
-            ReturnValue = Method.Invoke(backingObject, Arguments);
+            if(remainingInterceptors.Count == 0)
+            {
+                ReturnValue = Method.Invoke(backingObject, Arguments);
+                return; ;
+            }
+
+            remainingInterceptors.Pop().Intercept(this);
         }
     }
 
