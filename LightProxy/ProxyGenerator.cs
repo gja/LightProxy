@@ -28,33 +28,9 @@ namespace LightProxy
                 newType.DefineMethodOverride(newMethod, method);
             }
 
-            //            //Define a method on the new type to call
-//            Type[] paramTypes = new Type[0];
-//            Type returnType = typeof(long);
-//            MethodBuilder newMethod = newType.DefineMethod("FindFactorial", MethodAttributes.Public | MethodAttributes.Virtual,
-//                returnType, paramTypes);
-//            //Get an IL Generator, which will be used to emit the required IL
-//            ILGenerator generator = newMethod.GetILGenerator();
-//
-//            //Emit the IL in lines of the FindFactorial defined above
-//            generator.Emit(OpCodes.Ldc_I8, 1L); //push '1' into the evaluation stack
-//            for (long i = 1L; i <= number; i++)
-//            {
-//                //push the current number into evaluation stack
-//                generator.Emit(OpCodes.Ldc_I8, i);
-//                //muliply the two successive numbers and push into the evaluation stack
-//                generator.Emit(OpCodes.Mul);
-//            }
-//            //return the value;
-//            generator.Emit(OpCodes.Ret);
-//
-//            //Now override the method defination from IFactorial in the FindFactorial class
-//            MethodInfo methodInfo = typeof(IFactorial).GetMethod("FindFactorial");
-//            newType.DefineMethodOverride(newMethod, methodInfo);
-
             newType.CreateType();
 
-            return (T) newAssembly.CreateInstance(typeof(T).Name, false, BindingFlags.Public, null, new object[]{backingObject, interceptors}, null, null);
+            return (T) newAssembly.CreateInstance(newType.Name, false, BindingFlags.Public, null, new object[]{backingObject, interceptors}, null, null);
         }
 
         private TypeBuilder GetNewType<T>(AssemblyBuilder newAssembly)
