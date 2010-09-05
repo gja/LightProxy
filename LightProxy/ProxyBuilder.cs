@@ -58,28 +58,32 @@ namespace LightProxy
             var newMethod = newType.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual, method.CallingConvention, method.ReturnType, parameters);
 
             var generator = newMethod.GetILGenerator();
-//            generator.DeclareLocal(typeof (object[]));
-//
-//            generator.LoadSelf();
-//            
-//            generator.LoadNull();
-//            generator.LoadField(backingObjectField);
-//            generator.LoadField(interceptorsField);
-//
-//            generator.CreateArray(typeof (Object), count);            
-//            generator.Emit(OpCodes.Stloc_0);
-//            for (int i = 0; i < count; i++)
-//            {
-//                generator.Emit(OpCodes.Ldloc_0);
-//                generator.Emit(OpCodes.Ldc_I4, i);
-//                generator.Emit(OpCodes.Ldarg, i + 1);
-//                generator.Emit(OpCodes.Stelem, typeof(Object));
-//            }
-//            generator.Emit(OpCodes.Ldloc_0);
-//  
-//            generator.Emit(OpCodes.Call, executeMethod);
+            generator.DeclareLocal(typeof (object[]));
 
-            generator.LoadField(backingObjectField);            for (int i = 0; i < count; i++)                generator.LoadArgument(i + 1);            generator.Execute(method);
+            generator.LoadSelf();
+            
+            generator.LoadNull();
+            generator.LoadField(backingObjectField);
+            generator.LoadField(interceptorsField);
+
+            generator.CreateArray(typeof (Object), count);            
+            generator.StashTemporaryVariable(0);
+            for (int i = 0; i < count; i++)
+            {
+                generator.LoadTemporaryVariable(0);
+                generator.LoadInteger(i);
+                generator.LoadArgument(i + 1);
+                
+                var type = parameters[i];
+                if(type.IsValueType)
+                    generator.Box(type);
+                
+                generator.Emit(OpCodes.Stelem_Ref);
+            }
+            generator.LoadTemporaryVariable(0);
+  
+            generator.Execute(executeMethod);
+
             generator.Return();
                         
             newType.DefineMethodOverride(newMethod, method);

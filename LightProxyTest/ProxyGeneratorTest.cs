@@ -11,6 +11,7 @@ namespace LightProxyTest
     {
         int Foo();
         int Bar();
+        int War(object a);
         int Baz(int b, int c);
     }
 
@@ -18,6 +19,7 @@ namespace LightProxyTest
     {
         public int Foo() { return 42; }
         public int Bar() { return 24; }
+        public int War(object a) { return 12; }
         public int Baz(int b, int c) { return b + c; }
     }
 
@@ -39,6 +41,13 @@ namespace LightProxyTest
         {
             var blah = generator.GenerateProxy<IFoo>(new Blah());
             blah.Bar().ShouldBe(24);
+        }
+
+        [Test]
+        public void ShouldAcceptAnArgument()
+        {
+            var blah = generator.GenerateProxy<IFoo>(new Blah());
+            blah.War(new object()).ShouldBe(12);
         }
 
         [Test]

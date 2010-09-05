@@ -32,12 +32,17 @@ namespace LightProxy
             generator.Emit(OpCodes.Ldc_I4, val);
         }
 
-        public static void LoadTemporary(this ILGenerator generator, int pos)
+        public static void LoadTemporaryVariable(this ILGenerator generator, int pos)
         {
             generator.Emit(OpCodes.Ldloc, pos);
         }
+
+        public static void Box(this ILGenerator generator, Type type)
+        {
+            generator.Emit(OpCodes.Box, type);
+        }
         
-        public static void SaveTemporary(this ILGenerator generator, int pos)
+        public static void StashTemporaryVariable(this ILGenerator generator, int pos)
         {
             generator.Emit(OpCodes.Stloc, pos);
         }

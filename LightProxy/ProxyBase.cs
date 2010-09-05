@@ -18,7 +18,8 @@ namespace LightProxy
     {
         public int blah(object a, object b, object c, object d, object e)
         {
-            throw new Exception();
+            var adsf = new object[] {1, 2, 3, 4};
+            return adsf.Length;
         }
     }
 }
