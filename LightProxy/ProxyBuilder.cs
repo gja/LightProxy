@@ -16,7 +16,7 @@ namespace LightProxy
         public ProxyBuilder(AssemblyBuilder assembly)
         {
             this.assembly = assembly;
-            module = assembly.DefineDynamicModule(typeof(T).Name + "Proxy");
+            module = assembly.GetDynamicModule("Proxies");
             
             newType = module.DefineType(typeof(T).Name, TypeAttributes.Public, typeof(Object), new[] { typeof(T), typeof(ISetBackingObjectAndInterceptors<T>) });
             backingObjectField = newType.DefineField("backingObject", typeof (T), FieldAttributes.Public);
@@ -27,7 +27,6 @@ namespace LightProxy
         {
             newType.DefineDefaultConstructor(MethodAttributes.Public);
         }
-
 
         public void GenerateSetterMethod()
         {

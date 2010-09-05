@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
 using LightProxy;
 using NUnit.Framework;
 
@@ -22,24 +25,26 @@ namespace LightProxyTest
     [TestFixture]
     public class ProxyGeneratorTest
     {
+        private ProxyGenerator generator = new ProxyGenerator();
+       
         [Test]
         public void ShouldGenerateProxyWithBackingObject()
         {
-            var blah = new ProxyGenerator().GenerateProxy<IFoo>(new Blah());
+            var blah = generator.GenerateProxy<IFoo>(new Blah());
             blah.Foo().ShouldBe(42);
         }
 
         [Test]
         public void ShouldOverrideAllMembers()
         {
-            var blah = new ProxyGenerator().GenerateProxy<IFoo>(new Blah());
+            var blah = generator.GenerateProxy<IFoo>(new Blah());
             blah.Bar().ShouldBe(24);
         }
 
         [Test]
         public void ShouldAcceptArgumentsIntoMethods()
         {
-            var blah = new ProxyGenerator().GenerateProxy<IFoo>(new Blah());
+            var blah = generator.GenerateProxy<IFoo>(new Blah());
             blah.Baz(1, 2).ShouldBe(3);
         }
 
@@ -47,10 +52,19 @@ namespace LightProxyTest
         public void ShouldStoreBackingObjectAndInterceptors()
         {
             var backingObject = new Blah();
-            var blah = new ProxyGenerator().GenerateProxy<IFoo>(backingObject);
+            var blah = generator.GenerateProxy<IFoo>(backingObject);
 
             var backing = blah.GetType().GetField("backingObject");
             backing.GetValue(blah).ShouldBe(backingObject);
+        }
+
+        [Test]
+        public void ShouldNotEmitMultipleAssemblies()
+        {
+            generator.GenerateProxy<IFoo>(new Blah());
+            generator.GenerateProxy<IFoo>(new Blah());
+
+            AppDomain.CurrentDomain.GetAssemblies().Where(assembly => Regex.IsMatch(assembly.GetName().Name, "LightProxy-.*")).ShouldBeOfSize(1);
         }
     }
 }
