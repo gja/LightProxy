@@ -73,24 +73,19 @@ namespace LightProxyTest
         [Test]
         public void ShouldBeAbleToCreateAnExecutor()
         {
-            var proxy = new ProxyBase<IFace>();
-            proxy.backingObject = new Face();
-            proxy.interceptors = new IInterceptor[0];
+            var proxy = new ProxyBase<IFace> {backingObject = new Face(), interceptors = new IInterceptor[0]};
 
             var invocation = new Invocation(proxy.backingObject, proxy.interceptors, typeof(IFace).GetMethods()[0], new object[0]);
             invocation.Continue();
             invocation.ReturnValue.ShouldBe(10);
-            (proxy.backingObject as Face).called.ShouldBe(true);
+            ((Face) proxy.backingObject).called.ShouldBe(true);
         }
 
         [Test]
         public void ShouldBeAbleToIntercept()
         {
             var list = new List<int>();
-            var proxy = new ProxyBase<IFace>();
-            proxy.backingObject = new InterceptedFace(list);
-            proxy.interceptors = new IInterceptor[]{new FaceInterceptor(list)};
-
+            var proxy = new ProxyBase<IFace> {backingObject = new InterceptedFace(list), interceptors = new IInterceptor[] {new FaceInterceptor(list)}};
             var invocation = new Invocation(proxy.backingObject, proxy.interceptors, typeof(IFace).GetMethods()[0], new object[0]);
             invocation.Continue();
             invocation.ReturnValue.ShouldBe(10);
@@ -101,9 +96,11 @@ namespace LightProxyTest
         public void ShouldBeAbleToInterceptWithMultipleInterceptors()
         {
             var list = new List<int>();
-            var proxy = new ProxyBase<IFace>();
-            proxy.backingObject = new InterceptedFace(list);
-            proxy.interceptors = new IInterceptor[]{new FaceInterceptor(list), new TailInterceptor(list)};
+            var proxy = new ProxyBase<IFace>
+                            {
+                                backingObject = new InterceptedFace(list),
+                                interceptors = new IInterceptor[] {new FaceInterceptor(list), new TailInterceptor(list)}
+                            };
 
             var invocation = new Invocation(proxy.backingObject, proxy.interceptors, typeof(IFace).GetMethods()[0], new object[0]);
             invocation.Continue();

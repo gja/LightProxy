@@ -7,15 +7,13 @@ namespace LightProxy.Internal
 {
     internal class ProxyBuilder<T> : IDisposable
     {
-        private readonly AssemblyBuilder assembly;
         private readonly ModuleBuilder module;
-        private TypeBuilder newType;
+        private readonly TypeBuilder newType;
         
-        private MethodInfo executeMethod;
+        private readonly MethodInfo executeMethod;
 
         public ProxyBuilder(AssemblyBuilder assembly)
         {
-            this.assembly = assembly;
             module = assembly.GetDynamicModule("Proxies");
 
             var parent = typeof (ProxyBase<T>);

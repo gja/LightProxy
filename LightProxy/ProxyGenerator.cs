@@ -10,7 +10,7 @@ namespace LightProxy
     public class ProxyGenerator
     {
         private AssemblyBuilder assembly;
-        public List<Type> generatedClasses = new List<Type>();
+        private readonly List<Type> generatedClasses = new List<Type>();
 
         public T GenerateProxy<T>(T backingObject, params IInterceptor[] interceptors) where T:class
         {
@@ -34,7 +34,7 @@ namespace LightProxy
             }
         }
 
-        private T GetInstance<T>(AssemblyBuilder assembly, Type type, T backingObject, IInterceptor[] interceptors)
+        private static T GetInstance<T>(AssemblyBuilder assembly, Type type, T backingObject, IInterceptor[] interceptors)
         {
             var instance = assembly.CreateInstance(type.Name);
             var proxyBase = (ProxyBase<T>) instance;
@@ -42,10 +42,9 @@ namespace LightProxy
             return (T) instance;
         }
 
-        private AssemblyBuilder GetNewAssembly()
+        private static AssemblyBuilder GetNewAssembly()
         {
-            var assemblyName = new AssemblyName();
-            assemblyName.Name = "LightProxy-" + Guid.NewGuid();
+            var assemblyName = new AssemblyName {Name = "LightProxy-" + Guid.NewGuid()};
             var assembly = Thread.GetDomain().DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             assembly.DefineDynamicModule("Proxies");
             return assembly;

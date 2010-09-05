@@ -25,7 +25,7 @@ namespace LightProxy.Internal
             if(remainingInterceptors.Count == 0)
             {
                 ReturnValue = Method.Invoke(backingObject, Arguments);
-                return; ;
+                return;
             }
 
             remainingInterceptors.Pop().Intercept(this);
