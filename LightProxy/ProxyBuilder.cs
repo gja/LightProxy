@@ -1,10 +1,11 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
 namespace LightProxy
 {
-    public class ProxyBuilder<T> : IDisposable
+    class ProxyBuilder<T> : IDisposable
     {
         private readonly AssemblyBuilder assembly;
         private readonly ModuleBuilder module;
@@ -47,12 +48,16 @@ namespace LightProxy
 
         public void OverrideMethod(MethodInfo method)
         {
-            var newMethod = newType.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual, method.CallingConvention, method.ReturnType, method.GetGenericArguments());
+            var parameters = method.GetParameters().Select(param => param.ParameterType).ToArray();
+            var newMethod = newType.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual, method.CallingConvention, method.ReturnType, parameters);
 
             var generator = newMethod.GetILGenerator();
             generator.Emit(OpCodes.Ldarg_0);
             generator.Emit(OpCodes.Ldfld, backingObjectField);
-//            generator.Emit(OpCodes.Ldc_I4, 42);
+
+            for (int i = 0; i < parameters.Count(); i++)
+                generator.Emit(OpCodes.Ldarg, i + 1);
+
             generator.Emit(OpCodes.Call, method);
             generator.Emit(OpCodes.Ret);
 

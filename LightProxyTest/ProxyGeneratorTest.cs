@@ -1,4 +1,5 @@
-﻿using LightProxy;
+﻿using System;
+using LightProxy;
 using NUnit.Framework;
 
 namespace LightProxyTest
@@ -7,12 +8,14 @@ namespace LightProxyTest
     {
         int Foo();
         int Bar();
+        int Baz(int b, int c);
     }
 
     public class Blah : IFoo
     {
         public int Foo() { return 42; }
         public int Bar() { return 24; }
+        public int Baz(int b, int c) { return b + c; }
     }
 
 
@@ -31,6 +34,13 @@ namespace LightProxyTest
         {
             var blah = new ProxyGenerator().GenerateProxy<IFoo>(new Blah());
             blah.Bar().ShouldBe(24);
+        }
+
+        [Test]
+        public void ShouldAcceptArgumentsIntoMethods()
+        {
+            var blah = new ProxyGenerator().GenerateProxy<IFoo>(new Blah());
+            blah.Baz(1, 2).ShouldBe(3);
         }
 
         [Test]
