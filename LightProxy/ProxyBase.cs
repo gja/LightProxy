@@ -2,13 +2,16 @@ namespace LightProxy
 {
     public class ProxyBase<T>
     {
-        protected readonly T backingObject;
-        protected readonly IInterceptor[] interceptors;
-
-        public ProxyBase(T backingObject, IInterceptor[] interceptors)
+        private T backingObject;
+        public T BackingObject
         {
-            this.backingObject = backingObject;
-            this.interceptors = interceptors;
+            set { backingObject = value; }
+        }
+
+        private IInterceptor[] interceptors;
+        public IInterceptor[] Interceptors
+        {
+            set { interceptors = value; }
         }
     }
 }

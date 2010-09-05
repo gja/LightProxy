@@ -24,8 +24,7 @@ namespace LightProxyTest
         public void ShouldGenerateProxyWithBackingObject()
         {
             var blah = new ProxyGenerator().GenerateProxy<IFoo>(new Blah());
-            var foo = blah.Foo();
-            foo.ShouldBe(42);
+            blah.Foo().ShouldBe(42);
         }
     }
 }

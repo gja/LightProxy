@@ -10,10 +10,11 @@ namespace LightProxy
         public T GenerateProxy<T>(T backingObject, params IInterceptor[] interceptors) where T:class 
         {
             var newAssembly = GetNewAssembly();
-
+    
             TypeBuilder newType = GetNewType<T>(newAssembly);
 
-            GenerateConstructor<T>(newType);
+//            GenerateConstructor<T>(newType);
+            newType.DefineDefaultConstructor(MethodAttributes.Public);
 
             var methods = typeof (T).GetMethods();
 
@@ -28,9 +29,18 @@ namespace LightProxy
                 newType.DefineMethodOverride(newMethod, method);
             }
 
-            newType.CreateType();
+            var type = newType.CreateType();
 
-            return (T) newAssembly.CreateInstance(newType.Name, false, BindingFlags.Public, null, new object[]{backingObject, interceptors}, null, null);
+            return GetInstance(newAssembly, type, backingObject, interceptors);
+        }
+
+        private T GetInstance<T>(AssemblyBuilder assembly, Type type, T backingObject, IInterceptor[] interceptors)
+        {
+            var instance = assembly.CreateInstance(type.Name);
+            var proxyBase = (ProxyBase<T>) instance;
+            proxyBase.BackingObject = backingObject;
+            proxyBase.Interceptors = interceptors;
+            return (T) instance;
         }
 
         private TypeBuilder GetNewType<T>(AssemblyBuilder newAssembly)
@@ -52,11 +62,15 @@ namespace LightProxy
         private void GenerateConstructor<T>(TypeBuilder newType)
         {
             var constructorTypes = new[] {typeof (T), typeof (IInterceptor[])};
-            var constructor = newType.DefineConstructor(MethodAttributes.Public, CallingConventions.Any, constructorTypes).GetILGenerator();
-            constructor.Emit(OpCodes.Ldarg_0);
-            constructor.Emit(OpCodes.Ldarg_1);
-            constructor.Emit(OpCodes.Call, newType.BaseType.GetConstructor(constructorTypes));
-            constructor.Emit(OpCodes.Ret);
+            
+            var constructor = newType.DefineConstructor(MethodAttributes.Public, CallingConventions.Any, constructorTypes);
+
+            var generator = constructor.GetILGenerator();
+            
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Call, newType.BaseType.GetConstructor(constructorTypes));
+            generator.Emit(OpCodes.Ret);
         }
     }
 }
