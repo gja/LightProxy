@@ -34,6 +34,16 @@ namespace LightProxyTest
         }
 
         [Test]
+        public void ShouldStoreBackingObjectAndInterceptors()
+        {
+            var backingObject = new Blah();
+            var blah = new ProxyGenerator().GenerateProxy<IFoo>(backingObject);
+
+            var backing = blah.GetType().GetField("backingObject");
+            backing.GetValue(blah).ShouldBe(backingObject);            
+        }
+
+        [Test]
         public void ShouldOverrideAllMembers()
         {
             var blah = new ProxyGenerator().GenerateProxy<IFoo>(new Blah());

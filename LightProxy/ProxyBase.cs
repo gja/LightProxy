@@ -17,11 +17,8 @@ namespace LightProxy
         }
     }
 
-    public class FooBar : ProxyBase<int>
+    public interface ISetBackingObjectAndInterceptors<T>
     {
-        void Foo()
-        {
-            backingObject.ToString();
-        }
+        void SetBackingObjectAndInterceptors(T backingObject, IInterceptor[] interceptors);
     }
 }
