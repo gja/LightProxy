@@ -46,11 +46,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IInterceptor.cs" />
-    <Compile Include="ILGeneratorX.cs" />
-    <Compile Include="Invocation.cs" />
-    <Compile Include="ISetBackingObjectAndInterceptors.cs" />
-    <Compile Include="ProxyBase.cs" />
-    <Compile Include="ProxyBuilder.cs" />
+    <Compile Include="Internal\ILGeneratorX.cs" />
+    <Compile Include="IInvocation.cs" />
+    <Compile Include="Internal\Invocation.cs" />
+    <Compile Include="Internal\ProxyBase.cs" />
+    <Compile Include="Internal\ProxyBuilder.cs" />
     <Compile Include="ProxyGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

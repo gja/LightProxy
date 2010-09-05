@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace LightProxy
+namespace LightProxy.Internal
 {
     public static class ILGeneratorX
     {

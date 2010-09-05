@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 using LightProxy;
 using NUnit.Framework;
 
@@ -83,6 +83,17 @@ namespace LightProxyTest
         {
             var blah = generator.GenerateProxy<IFoo>(new Blah());
             blah.Junk();
+        }
+
+        [Test]
+        public void ShouldPutItAllTogether()
+        {
+            var list = new List<int>();
+            var blah = generator.GenerateProxy<IFace>(new InterceptedFace(list), new IInterceptor[] {new TailInterceptor(list), new FaceInterceptor(list)});
+            
+            blah.Foo().ShouldBe(10);
+
+            list.ShouldBe(new List<int>{0,1,2,3,4});
         }
     }
 }

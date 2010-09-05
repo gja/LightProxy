@@ -1,12 +1,11 @@
 using System;
-using System.Diagnostics.SymbolStore;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace LightProxy
+namespace LightProxy.Internal
 {
-    class ProxyBuilder<T> : IDisposable
+    internal class ProxyBuilder<T> : IDisposable
     {
         private readonly AssemblyBuilder assembly;
         private readonly ModuleBuilder module;
@@ -71,12 +70,6 @@ namespace LightProxy
         public void Dispose()
         {
             Build();
-        }
-
-        private void ThrowException(ILGenerator generator)
-        {
-            generator.Emit(OpCodes.Newobj, typeof(Exception).GetConstructor(new Type[0]));
-            generator.Emit(OpCodes.Throw);
         }
     }
 }

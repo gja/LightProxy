@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 
-namespace LightProxy
+namespace LightProxy.Internal
 {
     public class Invocation : IInvocation
     {
         private readonly object backingObject;
         private readonly Stack<IInterceptor> remainingInterceptors;
 
-        public Invocation(object backingObject, IEnumerable<IInterceptor> list, MethodInfo method, object[] arguments)
+        public Invocation(object backingObject, IEnumerable<IInterceptor> interceptorsBackwards, MethodInfo method, object[] arguments)
         {
             this.backingObject = backingObject;
-            remainingInterceptors = new Stack<IInterceptor>(list);
+            remainingInterceptors = new Stack<IInterceptor>(interceptorsBackwards);
             Method = method;
             Arguments = arguments;
         }
@@ -30,14 +30,5 @@ namespace LightProxy
 
             remainingInterceptors.Pop().Intercept(this);
         }
-    }
-
-    public interface IInvocation
-    {
-        MethodInfo Method { get; }
-        object[] Arguments { get; }
-        object ReturnValue { get; set; }
-
-        void Continue();
     }
 }

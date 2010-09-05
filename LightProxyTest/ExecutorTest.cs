@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using LightProxy;
+using LightProxy.Internal;
 using NUnit.Framework;
 
 namespace LightProxyTest
