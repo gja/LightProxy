@@ -15,6 +15,19 @@ namespace LightProxy
 
             GenerateConstructor<T>(newType);
 
+            var methods = typeof (T).GetMethods();
+
+            foreach(var method in methods)
+            {
+                var newMethod = newType.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual, method.CallingConvention, method.ReturnType, method.GetGenericArguments());
+                var generator = newMethod.GetILGenerator();
+
+                generator.Emit(OpCodes.Ldc_I4, 42);
+                generator.Emit(OpCodes.Ret);
+
+                newType.DefineMethodOverride(newMethod, method);
+            }
+
             //            //Define a method on the new type to call
 //            Type[] paramTypes = new Type[0];
 //            Type returnType = typeof(long);
@@ -48,7 +61,7 @@ namespace LightProxy
         {
             var newModule = newAssembly.DefineDynamicModule("Proxies");
 
-            return newModule.DefineType(typeof(T).Name, TypeAttributes.Public, typeof(ProxyBase<T>), new[]{typeof(T)});
+            return newModule.DefineType(typeof(T).Name + "Proxy", TypeAttributes.Public, typeof(ProxyBase<T>), new[]{typeof(T)});
         }
 
         private AssemblyBuilder GetNewAssembly()
