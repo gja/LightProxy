@@ -45,7 +45,7 @@ namespace LightProxyTest
         public void ShouldAcceptArgumentsIntoMethods()
         {
             var blah = generator.GenerateProxy<IFoo>(new Blah());
-            blah.Baz(1, 2).ShouldBe(3);
+            blah.Baz(1, 2).ShouldBe(3); 
         }
 
         [Test]

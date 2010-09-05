@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.SymbolStore;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -52,29 +53,52 @@ namespace LightProxy
         public void OverrideMethod(MethodInfo method)
         {
             var parameters = method.GetParameters().Select(param => param.ParameterType).ToArray();
+            var count = parameters.Count();
+
             var newMethod = newType.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual, method.CallingConvention, method.ReturnType, parameters);
 
             var generator = newMethod.GetILGenerator();
-            generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Ldfld, backingObjectField);
+//            generator.DeclareLocal(typeof (object[]));
+//
+//            generator.LoadSelf();
+//            
+//            generator.LoadNull();
+//            generator.LoadField(backingObjectField);
+//            generator.LoadField(interceptorsField);
+//
+//            generator.CreateArray(typeof (Object), count);            
+//            generator.Emit(OpCodes.Stloc_0);
+//            for (int i = 0; i < count; i++)
+//            {
+//                generator.Emit(OpCodes.Ldloc_0);
+//                generator.Emit(OpCodes.Ldc_I4, i);
+//                generator.Emit(OpCodes.Ldarg, i + 1);
+//                generator.Emit(OpCodes.Stelem, typeof(Object));
+//            }
+//            generator.Emit(OpCodes.Ldloc_0);
+//  
+//            generator.Emit(OpCodes.Call, executeMethod);
 
-            for (int i = 0; i < parameters.Count(); i++)
-                generator.Emit(OpCodes.Ldarg, i + 1);
-
-            generator.Emit(OpCodes.Call, method);
-            generator.Emit(OpCodes.Ret);
-
+            generator.LoadField(backingObjectField);            for (int i = 0; i < count; i++)                generator.LoadArgument(i + 1);            generator.Execute(method);
+            generator.Return();
+                        
             newType.DefineMethodOverride(newMethod, method);
         }
 
         public void Build()
         {
-            newType.CreateType();
+            newType.CreateType();            
         }
 
         public void Dispose()
         {
             Build();
+        }
+
+        private void ThrowException(ILGenerator generator)
+        {
+            generator.Emit(OpCodes.Newobj, typeof(Exception).GetConstructor(new Type[0]));
+            generator.Emit(OpCodes.Throw);
         }
     }
 }
