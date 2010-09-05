@@ -29,13 +29,4 @@ namespace LightProxy
             throw new TypeLoadException("Could Not Find Method " + method.Name);
         }
     }
-
-    public class Tmp : ProxyBase<object>
-    {
-        public int blah(object a, object b, object c, object d, object e)
-        {
-            var adsf = new object[] {1, 2, 3, 4};
-            return adsf.Length;
-        }
-    }
 }
