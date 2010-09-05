@@ -71,16 +71,13 @@ namespace LightProxy
                 generator.LoadTemporaryVariable(0);
                 generator.LoadInteger(i);
                 generator.LoadArgument(i + 1);
-                
-                var type = parameters[i];
-                if(type.IsValueType)
-                    generator.Box(type);
-                
+                generator.MaybeBox(parameters[i]);
                 generator.Emit(OpCodes.Stelem_Ref);
             }
             generator.LoadTemporaryVariable(0);
   
             generator.Execute(executeMethod);
+            generator.MaybeUnBox(method.ReturnType);
 
             generator.Return();
                         

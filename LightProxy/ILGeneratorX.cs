@@ -41,6 +41,18 @@ namespace LightProxy
         {
             generator.Emit(OpCodes.Box, type);
         }
+
+        public static void MaybeBox(this ILGenerator generator, Type type)
+        {
+            if(type.IsValueType)
+                generator.Emit(OpCodes.Box, type);
+        }
+
+        public static void MaybeUnBox(this ILGenerator generator, Type type)
+        {
+            if (type.IsValueType)
+                generator.Emit(OpCodes.Unbox_Any, type);
+        }
         
         public static void StashTemporaryVariable(this ILGenerator generator, int pos)
         {

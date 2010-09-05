@@ -13,6 +13,7 @@ namespace LightProxyTest
         int Bar();
         int War(object a);
         int Baz(int b, int c);
+//        void Junk();
     }
 
     public class Blah : IFoo
@@ -21,6 +22,7 @@ namespace LightProxyTest
         public int Bar() { return 24; }
         public int War(object a) { return 12; }
         public int Baz(int b, int c) { return b + c; }
+//        public void Junk() { }
     }
 
 
@@ -74,6 +76,13 @@ namespace LightProxyTest
             generator.GenerateProxy<IFoo>(new Blah());
 
             AppDomain.CurrentDomain.GetAssemblies().Where(assembly => Regex.IsMatch(assembly.GetName().Name, "LightProxy-.*")).ShouldBeOfSize(1);
+        }
+
+        [Test]
+        public void ShouldBeAbleToInterceptAVoidMethod()
+        {
+            var blah = generator.GenerateProxy<IFoo>(new Blah());
+//            blah.Junk();
         }
     }
 }

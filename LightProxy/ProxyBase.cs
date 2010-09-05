@@ -8,11 +8,11 @@ namespace LightProxy
         public T backingObject;
         public IInterceptor[] interceptors;
 
-        public int Execute(MethodInfo method, object[] arguments)
+        public object Execute(MethodInfo method, object[] arguments)
         {
             var interfaceMethod = GetInterfaceMethod(method);
             
-            return (int) interfaceMethod.Invoke(backingObject, arguments);
+            return interfaceMethod.Invoke(backingObject, arguments);
         }
 
         private MethodInfo GetInterfaceMethod(MethodInfo method)
