@@ -70,8 +70,17 @@ namespace LightProxy
             generator.Emit(OpCodes.Newarr, typeof(Object));
         }
 
-        public static void Return(this ILGenerator generator)
+        public static void Pop(this ILGenerator generator)
         {
+            generator.Emit(OpCodes.Pop);
+        }
+
+        public static void Return(this ILGenerator generator, Type type)
+        {
+            if(type == typeof(void))
+                generator.Pop();
+            else
+                generator.MaybeUnBox(type);
             generator.Emit(OpCodes.Ret);
         }
     }

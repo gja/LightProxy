@@ -59,7 +59,7 @@ namespace LightProxy
 
             var generator = newMethod.GetILGenerator();
             generator.DeclareLocal(typeof (object[]));
-
+            
             generator.LoadSelf();
             
             generator.Execute(typeof(MethodBase).GetMethod("GetCurrentMethod"));
@@ -77,9 +77,8 @@ namespace LightProxy
             generator.LoadTemporaryVariable(0);
   
             generator.Execute(executeMethod);
-            generator.MaybeUnBox(method.ReturnType);
 
-            generator.Return();
+            generator.Return(method.ReturnType);
                         
             newType.DefineMethodOverride(newMethod, method);
         }
