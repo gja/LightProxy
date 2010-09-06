@@ -14,11 +14,15 @@ namespace LightProxyTest
         int War(object a);
         int Baz(int b, int c);
         void Junk();
+        int Foo(int val);
+        string Name { get; set; }
     }
 
     public class Blah : IFoo
     {
         public int Foo() { return 42; }
+        public int Foo(int val) { return 2 * val; }
+        public string Name { get; set; }
         public int Bar() { return 24; }
         public int War(object a) { return 12; }
         public int Baz(int b, int c) { return b + c; }
@@ -83,6 +87,24 @@ namespace LightProxyTest
         {
             var blah = generator.GenerateProxy<IFoo>(new Blah());
             blah.Junk();
+        }
+
+        [Test]
+        public void ShouldBeAbleToInterceptTwoMethodsWitheTheSameName()
+        {
+            var blah = generator.GenerateProxy<IFoo>(new Blah());
+            blah.Foo().ShouldBe(42);
+            blah.Foo(5).ShouldBe(10);
+        }
+
+        [Test]
+        public void ShouldBeAbleToInterceptProperties()
+        {
+            var list = new List<int>();
+            var blah = generator.GenerateProxy<IFoo>(new Blah(), new TailInterceptor(list));
+            blah.Name = "Braindead";
+            blah.Name.ShouldBe("Braindead");
+            list.ShouldBe(new List<int>{0,4,0,4});
         }
 
         [Test]
