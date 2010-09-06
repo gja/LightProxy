@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -8,30 +9,15 @@ namespace LightProxy.Internal
     {
         public T backingObject;
         public IInterceptor[] interceptors;
-        private InterfaceMapping interfaceMap;
+        protected Dictionary<MethodInfo, MethodInfo> methodMap = new Dictionary<MethodInfo, MethodInfo>();
 
         public object Execute(MethodInfo method, object[] arguments)
         {
-            var interfaceMethod = GetInterfaceMethod(method);
+            var invocation = new Invocation(backingObject, interceptors, methodMap[method], arguments);
 
-            var invocation = new Invocation(backingObject, interceptors, interfaceMethod, arguments);
             invocation.Continue();
 
             return invocation.ReturnValue;
-        }
-
-        private MethodInfo GetInterfaceMethod(MethodInfo method)
-        {
-            interfaceMap = method.DeclaringType.GetInterfaceMap(typeof (T));
-
-            int i = 0;
-            foreach (var targetMethod in interfaceMap.TargetMethods)
-            {
-                if (targetMethod == method)
-                    return interfaceMap.InterfaceMethods[i];
-                i++;
-            }
-            throw new TypeLoadException("Could Not Find Method " + method.Name);
         }
 
         public void SetBackingObjectAndInterceptors(T backingObject, IInterceptor[] interceptors)
@@ -41,6 +27,12 @@ namespace LightProxy.Internal
             var list = interceptors.ToList();
             list.Reverse();
             this.interceptors = list.ToArray();
-        }
+
+            var interfaceMap = GetType().GetInterfaceMap(typeof (T));
+            for (int i = 0; i < interfaceMap.InterfaceMethods.Count(); i++)
+            {
+                methodMap[interfaceMap.TargetMethods[i]] = interfaceMap.InterfaceMethods[i];
+            }
+        }        
     }
 }
