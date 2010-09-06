@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using LightProxy;
 using NUnit.Framework;
 
@@ -47,6 +50,24 @@ namespace LightProxyTest
             foo = generator.GenerateProxy(foo, new DoNothingInterceptor(), new DoNothingInterceptor());
             using (Time.This)
                 for (int i = 0; i < 1000000L; i++) { foo.Junk(); }
+        }
+
+        [Test]
+        public void ShouldNotTakeMoreThan1kbToCreateOneMillionObjects()
+        {
+            long totalSize;
+            generator.GenerateProxy<IFoo>(new Blah());
+
+            var lightProxyAssembly = AppDomain.CurrentDomain.GetAssemblies().First(assembly => Regex.IsMatch(assembly.GetName().Name, "LightProxy-.*"));
+
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+            totalSize= GC.GetTotalMemory(true);
+            for (int i = 0; i < 1000000L; i++)
+                generator.GenerateProxy<IFoo>(new Blah());
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+            GC.GetTotalMemory(true).ShouldBe(totalSize, 1000);
+
+            lightProxyAssembly.GetModules().SelectMany(mod => mod.GetTypes()).ShouldBeOfSize(1);            
         }
     }
 
