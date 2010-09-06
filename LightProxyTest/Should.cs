@@ -9,7 +9,7 @@ namespace LightProxyTest
     {
         public static void ShouldBe(this object actual, object expected)
         {
-            Assert.That(actual, Is.EqualTo(expected));
+            Assert.AreEqual(expected, actual);
         }
 
         public static void ShouldBeOfSize<T>(this IEnumerable<T> actual, int expected)
@@ -19,7 +19,7 @@ namespace LightProxyTest
 
         public static void ShouldBe(this long actual, long expected, long tolerance)
         {
-            Assert.That(actual, Is.InRange(expected - tolerance, expected + tolerance));
+            Assert.AreEqual(expected, actual, tolerance);
         }
     }
 }
