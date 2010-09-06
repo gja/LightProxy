@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace LightProxy.Internal
 {
-    public class Invocation : IInvocation
+    internal class Invocation : IInvocation
     {
         private readonly object backingObject;
         private readonly Stack<IInterceptor> remainingInterceptors;
