@@ -11,6 +11,7 @@ namespace LightProxy.Internal
         private readonly TypeBuilder newType;
         
         private readonly MethodInfo executeMethod;
+        private FieldInfo backingObject;
 
         public ProxyBuilder(AssemblyBuilder assembly)
         {
@@ -20,6 +21,7 @@ namespace LightProxy.Internal
 
             newType = module.DefineType(typeof(T).Name, TypeAttributes.Public, parent, new[] { typeof(T) });
             executeMethod = parent.GetMethod("Execute");
+            backingObject = parent.GetField("backingObject");
         }
 
         public void GenerateConstructor()
@@ -32,8 +34,17 @@ namespace LightProxy.Internal
             var parameters = method.GetParameters().Select(param => param.ParameterType).ToArray();
             var count = parameters.Count();
 
-            var newMethod = newType.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual, method.CallingConvention, method.ReturnType, parameters);
+            var continueMethod = newType.DefineMethod("__LightProxy_Continue_" + method.Name + position, MethodAttributes.Public, method.CallingConvention, typeof(object), new[] {typeof(object[])});
+            CreateContinueMethod(method, continueMethod, position, parameters, count);
 
+            var newMethod = newType.DefineMethod(method.Name, MethodAttributes.Public | MethodAttributes.Virtual, method.CallingConvention, method.ReturnType, parameters);
+            GenerateProxyMethod(method, newMethod, position, parameters, count, continueMethod);
+
+            newType.DefineMethodOverride(newMethod, method);
+        }
+
+        private void GenerateProxyMethod(MethodInfo method, MethodBuilder newMethod, int position, Type[] parameters, int count, MethodBuilder continueMethod)
+        {
             var generator = newMethod.GetILGenerator();
             generator.DeclareLocal(typeof (object[]));
             
@@ -54,11 +65,39 @@ namespace LightProxy.Internal
             }
             generator.LoadTemporaryVariable(0);
   
+//            generator.Emit(OpCodes.Ldftn, continueMethod);
+//            generator.Emit(OpCodes.Newobj, typeof(Func<object[], object>));
+
             generator.Execute(executeMethod);
 
             generator.Return(method.ReturnType);
-                        
-            newType.DefineMethodOverride(newMethod, method);
+        }
+
+        private void CreateContinueMethod(MethodInfo method, MethodBuilder continueMethod, int position, Type[] parameters, int count)
+        {
+            var generator = continueMethod.GetILGenerator();
+            generator.DeclareLocal(typeof (object[]));
+            generator.LoadArgument(1);
+            generator.StashTemporaryVariable(0);
+
+            generator.LoadField(backingObject);
+
+            for (int i = 0; i < count; i++)
+            {
+                generator.LoadTemporaryVariable(0);
+                generator.LoadInteger(i);
+                generator.Emit(OpCodes.Ldelem_Ref);
+                generator.MaybeUnBox(parameters[i]);                
+            }
+
+            generator.Execute(method);
+
+            if (method.ReturnType == typeof(void))
+                generator.LoadNull();
+            else
+                generator.MaybeBox(method.ReturnType);
+
+            generator.Emit(OpCodes.Ret);
         }
 
         public void Build()

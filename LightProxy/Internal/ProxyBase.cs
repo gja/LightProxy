@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Reflection;
 
 namespace LightProxy.Internal
@@ -9,9 +11,12 @@ namespace LightProxy.Internal
         private Invocation invocation;
         protected MethodInfo[] methods;
 
-        public object Execute(int i, object[] arguments)
+        public object Execute(int i, object[] arguments/*, Func<object[], object> @delegate*/)
         {
-            return invocation.Start(methods[i], arguments);
+            var type = GetType();
+            var method = type.GetMethod("__LightProxy_Continue_" + methods[i].Name + i, new[]{typeof(object[])});
+            return method.Invoke(this, new object[]{arguments});
+//            return invocation.Start(methods[i], arguments);
         }
 
         public void InitializeProxy(T backingObject, IInterceptor[] interceptors, MethodInfo[] methods)
@@ -21,5 +26,26 @@ namespace LightProxy.Internal
             this.methods = methods;
             invocation = new Invocation(backingObject, interceptors);
         }        
+    }
+
+    public class FooBar
+    {
+        object backingObject = new object();
+
+        void blah(Func<object[], object> action)
+        {
+            
+        }
+
+        object argv(object[] args)
+        {
+            foobar();
+            return null;
+        }
+
+        void foobar()
+        {
+            blah(argv);
+        }
     }
 }
