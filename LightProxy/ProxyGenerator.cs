@@ -50,7 +50,7 @@ namespace LightProxy
             return assembly;
         }
 
-        public AssemblyBuilder Assembly
+        private AssemblyBuilder Assembly
         {
             get { return assembly ?? (assembly = GetNewAssembly()); }
         }

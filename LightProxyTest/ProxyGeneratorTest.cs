@@ -29,12 +29,9 @@ namespace LightProxyTest
         public void Junk() { }
     }
 
-
     [TestFixture]
-    public class ProxyGeneratorTest
+    public class ProxyGeneratorTest : ProxyGeneratorTestBase
     {
-        private readonly ProxyGenerator generator = new ProxyGenerator();
-       
         [Test]
         public void ShouldGenerateProxyWithBackingObject()
         {

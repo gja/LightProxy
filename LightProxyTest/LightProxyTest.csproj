@@ -52,6 +52,7 @@
     <Compile Include="ExecutorTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProxyGeneratorTest.cs" />
+    <Compile Include="ProxyGeneratorTestBase.cs" />
     <Compile Include="Should.cs" />
   </ItemGroup>
   <ItemGroup>
