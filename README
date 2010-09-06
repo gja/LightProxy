@@ -1,0 +1,12 @@
+== LightProxy ==
+This is a lightweight library for generating proxy objects. It aims to be faster than DynamicProxy, with a subset of features. It only has one mode, proxy an interface with a concrete backing object.
+
+== Examples ==
+
+// Hold onto this object. We emit one assembly per generator.
+var generator = new ProxyGenerator();
+IFoo foo = generator(new Foo(), interceptor1, interceptor2);
+
+== License ==
+This software is available under the Apache License, Version 2.0
+http://www.apache.org/licenses/LICENSE-2.0
