@@ -19,22 +19,37 @@ namespace LightProxy.Internal
 
         public object Start(MethodInfo method, object[] arguments)
         {
-            Method = method;
-            Arguments = arguments;
+            this.method = method;
+            this.arguments = arguments;
             current = -1;
             Continue();
-            return ReturnValue;
+            return returnValue;
         }
 
-        public MethodInfo Method { get; private set; }
-        public object[] Arguments { get; private set; }
-        public object ReturnValue { get; set; }
-        
+        private MethodInfo method;
+        public MethodInfo Method
+        {
+            get { return method; }
+        }
+
+        private object[] arguments;
+        public object[] Arguments
+        {
+            get { return arguments; }
+        }
+
+        private object returnValue;
+        public object ReturnValue
+        {
+            get { return returnValue; }
+            set { returnValue = value; }
+        }
+
         public void Continue()
         {
             if(current == last)
             {
-                ReturnValue = Method.Invoke(backingObject, Arguments);
+                returnValue = method.Invoke(backingObject, arguments);
                 return;
             }
 
