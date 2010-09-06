@@ -29,17 +29,7 @@ namespace LightProxyTest
     public class PerformanceTests : ProxyGeneratorTestBase
     {
         [Test]
-        public void GetCurrentMethodTest()
-        {
-            using(Time.This)
-                for (int i = 0; i < 1000000L; i++){}
-
-            using (Time.This)
-                for (int i = 0; i < 1000000L; i++) { MethodBase.GetCurrentMethod(); }
-        }
-
-        [Test]
-        public void ShouldTimeForNoProxy()
+        public void ShouldBeReallyReallyFast()
         {
             IFoo original = new Blah();
 

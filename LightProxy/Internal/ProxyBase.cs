@@ -9,23 +9,20 @@ namespace LightProxy.Internal
     {
         public T backingObject;
         public IInterceptor[] interceptors;
-        protected Dictionary<MethodInfo, MethodInfo> methodMap = new Dictionary<MethodInfo, MethodInfo>();
         private Invocation invocation;
+        protected MethodInfo[] methods;
 
-        public object Execute(MethodInfo method, object[] arguments)
+        public object Execute(int i, object[] arguments)
         {            
-            return invocation.Start(methodMap[method], arguments);
+            return invocation.Start(methods[i], arguments);
         }
 
-        public void InitializeProxy(T backingObject, IInterceptor[] interceptors)
+        public void InitializeProxy(T backingObject, IInterceptor[] interceptors, MethodInfo[] methods)
         {
             this.backingObject = backingObject;
             this.interceptors = interceptors;
+            this.methods = methods;
             invocation = new Invocation(backingObject, interceptors);
-
-            var interfaceMap = GetType().GetInterfaceMap(typeof (T));
-            for (int i = 0; i < interfaceMap.InterfaceMethods.Count(); i++)
-                methodMap[interfaceMap.TargetMethods[i]] = interfaceMap.InterfaceMethods[i];
         }        
     }
 }

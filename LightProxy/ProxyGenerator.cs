@@ -10,35 +10,38 @@ namespace LightProxy
     public class ProxyGenerator
     {
         private AssemblyBuilder assembly;
-        private readonly List<Type> generatedClasses = new List<Type>();
+        private readonly Dictionary<Type, MethodInfo[]> generatedClasses = new Dictionary<Type, MethodInfo[]>();
 
         public T GenerateProxy<T>(T backingObject, params IInterceptor[] interceptors) where T:class
         {
-            if (!generatedClasses.Contains(typeof(T)))
+            var type = typeof(T);
+
+            if (!generatedClasses.ContainsKey(type))
             {
-                GenerateClassDynamically<T>();
-                generatedClasses.Add(typeof (T));
+                var methods = type.GetMethods();
+                GenerateClassDynamically<T>(methods);                
+                generatedClasses.Add(type, methods);
             }
 
-            return GetInstance(Assembly, typeof(T), backingObject, interceptors);
+            return GetInstance(Assembly, type, backingObject, interceptors, generatedClasses[type]);
         }
 
-        private void GenerateClassDynamically<T>()
+        private void GenerateClassDynamically<T>(MethodInfo[] methods)
         {
             using (var builder = new ProxyBuilder<T>(Assembly))
             {
                 builder.GenerateConstructor();
 
-                foreach (var method in typeof(T).GetMethods())
-                    builder.OverrideMethod(method);
+                for (var i = 0; i < methods.Length; i++)
+                    builder.OverrideMethod(methods[i], i);
             }
         }
 
-        private static T GetInstance<T>(AssemblyBuilder assembly, Type type, T backingObject, IInterceptor[] interceptors)
+        private static T GetInstance<T>(AssemblyBuilder assembly, Type type, T backingObject, IInterceptor[] interceptors, MethodInfo[] methods)
         {
             var instance = assembly.CreateInstance(type.Name);
             var proxyBase = (ProxyBase<T>) instance;
-            proxyBase.InitializeProxy(backingObject, interceptors);
+            proxyBase.InitializeProxy(backingObject, interceptors, methods);
             return (T) instance;
         }
 

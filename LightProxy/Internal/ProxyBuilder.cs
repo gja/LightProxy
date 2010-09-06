@@ -27,7 +27,7 @@ namespace LightProxy.Internal
             newType.DefineDefaultConstructor(MethodAttributes.Public);
         }
 
-        public void OverrideMethod(MethodInfo method)
+        public void OverrideMethod(MethodInfo method, int position)
         {
             var parameters = method.GetParameters().Select(param => param.ParameterType).ToArray();
             var count = parameters.Count();
@@ -39,7 +39,8 @@ namespace LightProxy.Internal
             
             generator.LoadSelf();
             
-            generator.Execute(typeof(MethodBase).GetMethod("GetCurrentMethod"));
+            // Pass position of the method in the method array
+            generator.LoadInteger(position);
 
             generator.CreateArray(typeof (Object), count);            
             generator.StashTemporaryVariable(0);

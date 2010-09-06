@@ -80,7 +80,7 @@ namespace LightProxyTest
             invocation.ReturnValue.ShouldBe(10);
             ((Face) proxy.backingObject).called.ShouldBe(true);
         }
-
+        
         [Test]
         public void ShouldBeAbleToIntercept()
         {
