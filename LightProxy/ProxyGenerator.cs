@@ -38,7 +38,7 @@ namespace LightProxy
         {
             var instance = assembly.CreateInstance(type.Name);
             var proxyBase = (ProxyBase<T>) instance;
-            proxyBase.SetBackingObjectAndInterceptors(backingObject, interceptors);
+            proxyBase.InitializeProxy(backingObject, interceptors);
             return (T) instance;
         }
 

@@ -20,7 +20,7 @@ namespace LightProxy.Internal
             return invocation.ReturnValue;
         }
 
-        public void SetBackingObjectAndInterceptors(T backingObject, IInterceptor[] interceptors)
+        public void InitializeProxy(T backingObject, IInterceptor[] interceptors)
         {
             this.backingObject = backingObject;
 
@@ -30,9 +30,7 @@ namespace LightProxy.Internal
 
             var interfaceMap = GetType().GetInterfaceMap(typeof (T));
             for (int i = 0; i < interfaceMap.InterfaceMethods.Count(); i++)
-            {
                 methodMap[interfaceMap.TargetMethods[i]] = interfaceMap.InterfaceMethods[i];
-            }
         }        
     }
 }
