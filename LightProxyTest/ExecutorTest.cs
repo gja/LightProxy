@@ -99,7 +99,7 @@ namespace LightProxyTest
             var proxy = new ProxyBase<IFace>
                             {
                                 backingObject = new InterceptedFace(list),
-                                interceptors = new IInterceptor[] {new FaceInterceptor(list), new TailInterceptor(list)}
+                                interceptors = new IInterceptor[] { new TailInterceptor(list), new FaceInterceptor(list) }
                             };
 
             var invocation = new Invocation(proxy.backingObject, proxy.interceptors, typeof(IFace).GetMethods()[0], new object[0]);

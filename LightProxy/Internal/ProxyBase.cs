@@ -23,10 +23,7 @@ namespace LightProxy.Internal
         public void InitializeProxy(T backingObject, IInterceptor[] interceptors)
         {
             this.backingObject = backingObject;
-
-            var list = interceptors.ToList();
-            list.Reverse();
-            this.interceptors = list.ToArray();
+            this.interceptors = interceptors;
 
             var interfaceMap = GetType().GetInterfaceMap(typeof (T));
             for (int i = 0; i < interfaceMap.InterfaceMethods.Count(); i++)

@@ -6,12 +6,12 @@ namespace LightProxy.Internal
     internal class Invocation : IInvocation
     {
         private readonly object backingObject;
-        private readonly Stack<IInterceptor> remainingInterceptors;
+        private readonly Queue<IInterceptor> remainingInterceptors;
 
-        public Invocation(object backingObject, IEnumerable<IInterceptor> interceptorsBackwards, MethodInfo method, object[] arguments)
+        public Invocation(object backingObject, IEnumerable<IInterceptor> interceptors, MethodInfo method, object[] arguments)
         {
             this.backingObject = backingObject;
-            remainingInterceptors = new Stack<IInterceptor>(interceptorsBackwards);
+            remainingInterceptors = new Queue<IInterceptor>(interceptors);
             Method = method;
             Arguments = arguments;
         }
@@ -28,7 +28,7 @@ namespace LightProxy.Internal
                 return;
             }
 
-            remainingInterceptors.Pop().Intercept(this);
+            remainingInterceptors.Dequeue().Intercept(this);
         }
     }
 }
