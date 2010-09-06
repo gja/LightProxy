@@ -6,14 +6,24 @@ namespace LightProxy.Internal
     internal class Invocation : IInvocation
     {
         private readonly object backingObject;
-        private readonly Queue<IInterceptor> remainingInterceptors;
+        private readonly IInterceptor[] interceptors;
+        private readonly int last;
+        private int current;
 
-        public Invocation(object backingObject, IEnumerable<IInterceptor> interceptors, MethodInfo method, object[] arguments)
+        public Invocation(object backingObject, IInterceptor[] interceptors)
         {
             this.backingObject = backingObject;
-            remainingInterceptors = new Queue<IInterceptor>(interceptors);
+            this.interceptors = interceptors;
+            last = interceptors.Length - 1;            
+        }
+
+        public object Start(MethodInfo method, object[] arguments)
+        {
             Method = method;
             Arguments = arguments;
+            current = -1;
+            Continue();
+            return ReturnValue;
         }
 
         public MethodInfo Method { get; private set; }
@@ -22,13 +32,13 @@ namespace LightProxy.Internal
         
         public void Continue()
         {
-            if(remainingInterceptors.Count == 0)
+            if(current == last)
             {
                 ReturnValue = Method.Invoke(backingObject, Arguments);
                 return;
             }
 
-            remainingInterceptors.Dequeue().Intercept(this);
+            interceptors[++current].Intercept(this);
         }
     }
 }

@@ -75,8 +75,8 @@ namespace LightProxyTest
         {
             var proxy = new ProxyBase<IFace> {backingObject = new Face(), interceptors = new IInterceptor[0]};
 
-            var invocation = new Invocation(proxy.backingObject, proxy.interceptors, typeof(IFace).GetMethods()[0], new object[0]);
-            invocation.Continue();
+            var invocation = new Invocation(proxy.backingObject, proxy.interceptors);
+            invocation.Start(typeof(IFace).GetMethods()[0], new object[0]);
             invocation.ReturnValue.ShouldBe(10);
             ((Face) proxy.backingObject).called.ShouldBe(true);
         }
@@ -86,8 +86,8 @@ namespace LightProxyTest
         {
             var list = new List<int>();
             var proxy = new ProxyBase<IFace> {backingObject = new InterceptedFace(list), interceptors = new IInterceptor[] {new FaceInterceptor(list)}};
-            var invocation = new Invocation(proxy.backingObject, proxy.interceptors, typeof(IFace).GetMethods()[0], new object[0]);
-            invocation.Continue();
+            var invocation = new Invocation(proxy.backingObject, proxy.interceptors);
+            invocation.Start(typeof(IFace).GetMethods()[0], new object[0]);
             invocation.ReturnValue.ShouldBe(10);
             list.ShouldBe(new List<int>{1,2,3});
         }
@@ -102,8 +102,8 @@ namespace LightProxyTest
                                 interceptors = new IInterceptor[] { new TailInterceptor(list), new FaceInterceptor(list) }
                             };
 
-            var invocation = new Invocation(proxy.backingObject, proxy.interceptors, typeof(IFace).GetMethods()[0], new object[0]);
-            invocation.Continue();
+            var invocation = new Invocation(proxy.backingObject, proxy.interceptors);
+            invocation.Start(typeof(IFace).GetMethods()[0], new object[0]);
             invocation.ReturnValue.ShouldBe(10);
             list.ShouldBe(new List<int>{0,1,2,3,4});
         }

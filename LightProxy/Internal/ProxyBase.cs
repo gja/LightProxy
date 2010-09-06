@@ -10,20 +10,18 @@ namespace LightProxy.Internal
         public T backingObject;
         public IInterceptor[] interceptors;
         protected Dictionary<MethodInfo, MethodInfo> methodMap = new Dictionary<MethodInfo, MethodInfo>();
+        private Invocation invocation;
 
         public object Execute(MethodInfo method, object[] arguments)
-        {
-            var invocation = new Invocation(backingObject, interceptors, methodMap[method], arguments);
-
-            invocation.Continue();
-
-            return invocation.ReturnValue;
+        {            
+            return invocation.Start(methodMap[method], arguments);
         }
 
         public void InitializeProxy(T backingObject, IInterceptor[] interceptors)
         {
             this.backingObject = backingObject;
             this.interceptors = interceptors;
+            invocation = new Invocation(backingObject, interceptors);
 
             var interfaceMap = GetType().GetInterfaceMap(typeof (T));
             for (int i = 0; i < interfaceMap.InterfaceMethods.Count(); i++)
