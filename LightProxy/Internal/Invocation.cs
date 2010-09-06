@@ -11,7 +11,7 @@ namespace LightProxy.Internal
         private int current;
         private Func<object[], object> continueDelegate;
 
-        public Invocation(object backingObject, IInterceptor[] interceptors)
+        public Invocation(IInterceptor[] interceptors)
         {
             this.interceptors = interceptors;
             last = interceptors.Length - 1;

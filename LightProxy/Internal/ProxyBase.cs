@@ -22,7 +22,7 @@ namespace LightProxy.Internal
             this.backingObject = backingObject;
             this.interceptors = interceptors;
             this.methods = methods;
-            invocation = new Invocation(backingObject, interceptors);
+            invocation = new Invocation(interceptors);
         }        
     }
 }
