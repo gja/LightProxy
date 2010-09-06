@@ -11,12 +11,10 @@ namespace LightProxy.Internal
         private Invocation invocation;
         protected MethodInfo[] methods;
 
-        public object Execute(int i, object[] arguments/*, Func<object[], object> @delegate*/)
+        public object Execute(int i, object[] arguments, Func<object[], object> continueDelegate)
         {
-            var type = GetType();
-            var method = type.GetMethod("__LightProxy_Continue_" + methods[i].Name + i, new[]{typeof(object[])});
-            return method.Invoke(this, new object[]{arguments});
-//            return invocation.Start(methods[i], arguments);
+            //TODO: Creating a new invocation each time seems to be marginally slower
+            return invocation.Start(methods[i], arguments, continueDelegate);
         }
 
         public void InitializeProxy(T backingObject, IInterceptor[] interceptors, MethodInfo[] methods)
@@ -26,26 +24,5 @@ namespace LightProxy.Internal
             this.methods = methods;
             invocation = new Invocation(backingObject, interceptors);
         }        
-    }
-
-    public class FooBar
-    {
-        object backingObject = new object();
-
-        void blah(Func<object[], object> action)
-        {
-            
-        }
-
-        object argv(object[] args)
-        {
-            foobar();
-            return null;
-        }
-
-        void foobar()
-        {
-            blah(argv);
-        }
     }
 }

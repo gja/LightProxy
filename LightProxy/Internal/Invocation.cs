@@ -1,26 +1,27 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace LightProxy.Internal
 {
     internal class Invocation : IInvocation
     {
-        private readonly object backingObject;
         private readonly IInterceptor[] interceptors;
         private readonly int last;
         private int current;
+        private Func<object[], object> continueDelegate;
 
         public Invocation(object backingObject, IInterceptor[] interceptors)
         {
-            this.backingObject = backingObject;
             this.interceptors = interceptors;
-            last = interceptors.Length - 1;            
+            last = interceptors.Length - 1;
         }
 
-        public object Start(MethodInfo method, object[] arguments)
+        public object Start(MethodInfo method, object[] arguments, Func<object[], object> continueDelegate)
         {
             this.method = method;
             this.arguments = arguments;
+            this.continueDelegate = continueDelegate;
             current = -1;
             Continue();
             return returnValue;
@@ -49,7 +50,7 @@ namespace LightProxy.Internal
         {
             if(current == last)
             {
-                returnValue = method.Invoke(backingObject, arguments);
+                returnValue = continueDelegate(arguments);
                 return;
             }
 

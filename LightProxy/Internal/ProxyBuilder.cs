@@ -64,9 +64,12 @@ namespace LightProxy.Internal
                 generator.Emit(OpCodes.Stelem_Ref);
             }
             generator.LoadTemporaryVariable(0);
-  
-//            generator.Emit(OpCodes.Ldftn, continueMethod);
-//            generator.Emit(OpCodes.Newobj, typeof(Func<object[], object>));
+
+            var ctor = typeof (Func<object[], object>).GetConstructor(new[] {typeof (object), typeof (IntPtr)});
+
+            generator.LoadSelf();
+            generator.Emit(OpCodes.Ldftn, continueMethod);
+            generator.Emit(OpCodes.Newobj, ctor);
 
             generator.Execute(executeMethod);
 
