@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 using LightProxy;
 using NUnit.Framework;
 
@@ -10,20 +13,22 @@ namespace LightProxyTest
     class Time : IDisposable
     {
         private readonly DateTime startTime;
+        private readonly long memoryUsed;
 
-        private Time(DateTime startTime)
+        private Time(DateTime startTime, long memoryUsed)
         {
             this.startTime = startTime;
+            this.memoryUsed = memoryUsed;
         }
 
         public static Time This
         {
-            get { return new Time(DateTime.Now); }
+            get { return new Time(DateTime.Now, Process.GetCurrentProcess().VirtualMemorySize64); }
         }
 
         public void Dispose()
         {
-            Console.WriteLine("Time taken: {0}", DateTime.Now - startTime);
+            Console.WriteLine("Time taken/ExtraMemory: {0} {1}", DateTime.Now - startTime, Process.GetCurrentProcess().VirtualMemorySize64 - memoryUsed);
         }
     }
 
@@ -55,18 +60,16 @@ namespace LightProxyTest
         [Test]
         public void ShouldNotTakeMoreThan1kbToCreateOneMillionObjects()
         {
-            long totalSize;
             generator.GenerateProxy<IFoo>(new Blah());
 
+            using (Time.This)
+            {
+                for (int i = 0; i < 1000000L; i++)
+                    generator.GenerateProxy<IFoo>(new Blah(), new DoNothingInterceptor());
+                GC.Collect();
+            }
+
             var lightProxyAssembly = AppDomain.CurrentDomain.GetAssemblies().First(assembly => Regex.IsMatch(assembly.GetName().Name, "LightProxy-.*"));
-
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-            totalSize= GC.GetTotalMemory(true);
-            for (int i = 0; i < 1000000L; i++)
-                generator.GenerateProxy<IFoo>(new Blah());
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-            GC.GetTotalMemory(true).ShouldBe(totalSize, 1000);
-
             lightProxyAssembly.GetModules().SelectMany(mod => mod.GetTypes()).ShouldBeOfSize(1);            
         }
     }
@@ -75,7 +78,7 @@ namespace LightProxyTest
     {
         public void Intercept(IInvocation invocation)
         {
-            invocation.Continue(); ;
+            invocation.Continue();
         }
     }
 }
