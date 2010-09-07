@@ -51,6 +51,7 @@
     <Compile Include="Internal\Invocation.cs" />
     <Compile Include="Internal\ProxyBase.cs" />
     <Compile Include="Internal\ProxyBuilder.cs" />
+    <Compile Include="Internal\TypeX.cs" />
     <Compile Include="ProxyGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

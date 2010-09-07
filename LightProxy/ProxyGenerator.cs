@@ -19,10 +19,9 @@ namespace LightProxy
 
         public object GenerateProxy(Type type, object backingObject, params IInterceptor[] interceptors)
         {
-
             if (!generatedClasses.ContainsKey(type))
             {
-                var methods = type.GetMethods();
+                var methods = type.GetAllMethods();
                 GenerateClassDynamically(type, methods);
                 generatedClasses.Add(type, methods);
             }

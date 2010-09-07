@@ -18,11 +18,18 @@ namespace LightProxyTest
         string Name { get; set; }
     }
 
-    public class Blah : IFoo
+    public interface IBlah : IFoo
+    {
+        void Stupid();
+    }
+
+    public class Blah : IBlah
     {
         public int Foo() { return 42; }
         public int Foo(int val) { return 2 * val; }
         public string Name { get; set; }
+        public void Stupid() { }
+
         public int Bar() { return 24; }
         public int War(object a) { return 12; }
         public int Baz(int b, int c) { return b + c; }
@@ -102,6 +109,13 @@ namespace LightProxyTest
             blah.Name = "Braindead";
             blah.Name.ShouldBe("Braindead");
             list.ShouldBe(new List<int>{0,4,0,4});
+        }
+
+        [Test]
+        public void ShouldBeAbleToProxyASecondLevelInterface()
+        {
+            var blah = generator.GenerateProxy<IBlah>(new Blah());
+            blah.Foo().ShouldBe(42);
         }
 
         [Test]
