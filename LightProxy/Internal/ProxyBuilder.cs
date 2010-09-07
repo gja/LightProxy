@@ -26,6 +26,7 @@ namespace LightProxy.Internal
 
         public void GenerateConstructor()
         {
+            // Create a default constructor
             newType.DefineDefaultConstructor(MethodAttributes.Public);
         }
 
@@ -34,6 +35,7 @@ namespace LightProxy.Internal
             var parameters = method.GetParameters().Select(param => param.ParameterType).ToArray();
             var count = parameters.Count();
 
+            // Create a continue method which takes object[] as parameters and returns an object
             var continueMethod = newType.DefineMethod("__LightProxy_Continue_" + method.Name + position, MethodAttributes.Public, method.CallingConvention, typeof(object), new[] {typeof(object[])});
             CreateContinueMethod(method, continueMethod, position, parameters, count);
 
@@ -53,6 +55,7 @@ namespace LightProxy.Internal
             // Pass position of the method in the method array
             generator.LoadInteger(position);
 
+            // Push all passed in arguments onto a stack
             generator.CreateArray(typeof (Object), count);            
             generator.StashTemporaryVariable(0);
             for (int i = 0; i < count; i++)
@@ -64,13 +67,15 @@ namespace LightProxy.Internal
                 generator.Emit(OpCodes.Stelem_Ref);
             }
             generator.LoadTemporaryVariable(0);
-
+            
             var ctor = typeof (Func<object[], object>).GetConstructor(new[] {typeof (object), typeof (IntPtr)});
 
+            // Create a delegate pointint to the continue method
             generator.LoadSelf();
             generator.Emit(OpCodes.Ldftn, continueMethod);
             generator.Emit(OpCodes.Newobj, ctor);
 
+            // Delegate to the execute method
             generator.Execute(executeMethod);
 
             generator.Return(method.ReturnType);
@@ -79,12 +84,16 @@ namespace LightProxy.Internal
         private void CreateContinueMethod(MethodInfo method, MethodBuilder continueMethod, int position, Type[] parameters, int count)
         {
             var generator = continueMethod.GetILGenerator();
+
+            // Store array in temp0
             generator.DeclareLocal(typeof (object[]));
             generator.LoadArgument(1);
             generator.StashTemporaryVariable(0);
 
+            // Push backing object onto the stack
             generator.LoadField(backingObject);
 
+            // Push each of the arguments passed in onto the stack
             for (int i = 0; i < count; i++)
             {
                 generator.LoadTemporaryVariable(0);
@@ -93,13 +102,16 @@ namespace LightProxy.Internal
                 generator.MaybeUnBox(parameters[i]);                
             }
 
+            // Delegate to backing object
             generator.Execute(method);
 
+            // Convert the returned value to an object
             if (method.ReturnType == typeof(void))
                 generator.LoadNull();
             else
                 generator.MaybeBox(method.ReturnType);
 
+            // Return
             generator.Emit(OpCodes.Ret);
         }
 
