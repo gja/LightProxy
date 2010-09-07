@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 
 namespace LightProxy.Internal
 {
-    internal class ProxyBuilder<T> : IDisposable
+    internal class ProxyBuilder : IDisposable
     {
         private readonly ModuleBuilder module;
         private readonly TypeBuilder newType;
@@ -13,13 +13,13 @@ namespace LightProxy.Internal
         private readonly MethodInfo executeMethod;
         private FieldInfo backingObject;
 
-        public ProxyBuilder(AssemblyBuilder assembly)
+        public ProxyBuilder(AssemblyBuilder assembly, Type type)
         {
             module = assembly.GetDynamicModule("Proxies");
 
-            var parent = typeof (ProxyBase<T>);
+            var parent = typeof (ProxyBase);
 
-            newType = module.DefineType(typeof(T).Name, TypeAttributes.Public, parent, new[] { typeof(T) });
+            newType = module.DefineType(type.Name, TypeAttributes.Public, parent, new[] { type });
             executeMethod = parent.GetMethod("Execute");
             backingObject = parent.GetField("backingObject");
         }

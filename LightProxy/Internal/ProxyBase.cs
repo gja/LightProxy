@@ -4,9 +4,9 @@ using System.Reflection;
 
 namespace LightProxy.Internal
 {
-    public class ProxyBase<T>
+    public class ProxyBase
     {
-        public T backingObject;
+        public object backingObject;
         public IInterceptor[] interceptors;
         protected MethodInfo[] methods;
 
@@ -16,7 +16,7 @@ namespace LightProxy.Internal
             return new Invocation(interceptors).Start(methods[i], arguments, continueDelegate);
         }
 
-        public void InitializeProxy(T backingObject, IInterceptor[] interceptors, MethodInfo[] methods)
+        public void InitializeProxy(object backingObject, IInterceptor[] interceptors, MethodInfo[] methods)
         {
             this.backingObject = backingObject;
             this.interceptors = interceptors;

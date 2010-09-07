@@ -114,5 +114,16 @@ namespace LightProxyTest
 
             list.ShouldBe(new List<int>{0,1,2,3,4});
         }
+
+        [Test]
+        public void ShouldPutItAllTogetherWhenPassedAType()
+        {
+            var list = new List<int>();
+            var blah = (IFace)generator.GenerateProxy(typeof(IFace), new InterceptedFace(list), new IInterceptor[] { new TailInterceptor(list), new FaceInterceptor(list) });
+
+            blah.Foo().ShouldBe(10);
+
+            list.ShouldBe(new List<int> { 0, 1, 2, 3, 4 });
+        }
     }
 }

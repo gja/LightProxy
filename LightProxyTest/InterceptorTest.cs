@@ -73,10 +73,10 @@ namespace LightProxyTest
         [Test]
         public void ShouldBeAbleToCreateAnExecutor()
         {
-            var proxy = new ProxyBase<IFace> {backingObject = new Face(), interceptors = new IInterceptor[0]};
+            var proxy = new ProxyBase {backingObject = new Face(), interceptors = new IInterceptor[0]};
 
             var invocation = new Invocation(proxy.interceptors);
-            invocation.Start(typeof(IFace).GetMethods()[0], new object[0], args => proxy.backingObject.Foo());
+            invocation.Start(typeof(IFace).GetMethods()[0], new object[0], args => (proxy.backingObject as IFace).Foo());
             invocation.ReturnValue.ShouldBe(10);
             ((Face) proxy.backingObject).called.ShouldBe(true);
         }
@@ -85,9 +85,9 @@ namespace LightProxyTest
         public void ShouldBeAbleToIntercept()
         {
             var list = new List<int>();
-            var proxy = new ProxyBase<IFace> {backingObject = new InterceptedFace(list), interceptors = new IInterceptor[] {new FaceInterceptor(list)}};
+            var proxy = new ProxyBase {backingObject = new InterceptedFace(list), interceptors = new IInterceptor[] {new FaceInterceptor(list)}};
             var invocation = new Invocation(proxy.interceptors);
-            invocation.Start(typeof(IFace).GetMethods()[0], new object[0], args => proxy.backingObject.Foo());
+            invocation.Start(typeof(IFace).GetMethods()[0], new object[0], args => (proxy.backingObject as IFace).Foo());
             invocation.ReturnValue.ShouldBe(10);
             list.ShouldBe(new List<int>{1,2,3});
         }
@@ -96,14 +96,14 @@ namespace LightProxyTest
         public void ShouldBeAbleToInterceptWithMultipleInterceptors()
         {
             var list = new List<int>();
-            var proxy = new ProxyBase<IFace>
+            var proxy = new ProxyBase
                             {
                                 backingObject = new InterceptedFace(list),
                                 interceptors = new IInterceptor[] { new TailInterceptor(list), new FaceInterceptor(list) }
                             };
 
             var invocation = new Invocation(proxy.interceptors);
-            invocation.Start(typeof(IFace).GetMethods()[0], new object[0], args => proxy.backingObject.Foo());
+            invocation.Start(typeof(IFace).GetMethods()[0], new object[0], args => (proxy.backingObject as IFace).Foo());
             invocation.ReturnValue.ShouldBe(10);
             list.ShouldBe(new List<int>{0,1,2,3,4});
         }

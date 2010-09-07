@@ -14,21 +14,25 @@ namespace LightProxy
 
         public T GenerateProxy<T>(T backingObject, params IInterceptor[] interceptors) where T:class
         {
-            var type = typeof(T);
+            return GenerateProxy(typeof(T), backingObject, interceptors) as T;
+        }
+
+        public object GenerateProxy(Type type, object backingObject, params IInterceptor[] interceptors)
+        {
 
             if (!generatedClasses.ContainsKey(type))
             {
                 var methods = type.GetMethods();
-                GenerateClassDynamically<T>(methods);                
+                GenerateClassDynamically(type, methods);
                 generatedClasses.Add(type, methods);
             }
 
             return GetInstance(Assembly, type, backingObject, interceptors, generatedClasses[type]);
         }
 
-        private void GenerateClassDynamically<T>(MethodInfo[] methods)
+        private void GenerateClassDynamically(Type type, MethodInfo[] methods)
         {
-            using (var builder = new ProxyBuilder<T>(Assembly))
+            using (var builder = new ProxyBuilder(Assembly, type))
             {
                 builder.GenerateConstructor();
 
@@ -37,12 +41,12 @@ namespace LightProxy
             }
         }
 
-        private static T GetInstance<T>(AssemblyBuilder assembly, Type type, T backingObject, IInterceptor[] interceptors, MethodInfo[] methods)
+        private static object GetInstance(AssemblyBuilder assembly, Type type, object backingObject, IInterceptor[] interceptors, MethodInfo[] methods)
         {
             var instance = assembly.CreateInstance(type.Name);
-            var proxyBase = (ProxyBase<T>) instance;
+            var proxyBase = (ProxyBase) instance;
             proxyBase.InitializeProxy(backingObject, interceptors, methods);
-            return (T) instance;
+            return instance;
         }
 
         private static AssemblyBuilder GetNewAssembly()
