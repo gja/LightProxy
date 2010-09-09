@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Tejas Dinkar")]
 [assembly: AssemblyProduct("LightProxy")]
-[assembly: AssemblyCopyright("Copyright ©  2010")]
+[assembly: AssemblyCopyright("© 2010 Tejas Dinkar <tejas@gja.in>")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
