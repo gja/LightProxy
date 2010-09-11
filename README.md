@@ -10,7 +10,7 @@ Examples
     // This generator can be re-used
     var generator = new ProxyGenerator();
     
-    IFoo foo = generator(new Foo(), interceptor1, interceptor2);
+    IFoo foo = generator.GenerateProxy<IFoo, Foo>(new Foo(), interceptor1, interceptor2);
     
     class Interceptor1 : IInterceptor
     {
