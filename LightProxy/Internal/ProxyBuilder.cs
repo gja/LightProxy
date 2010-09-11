@@ -19,7 +19,7 @@ namespace LightProxy.Internal
 
             var parent = typeof (ProxyBase);
 
-            newType = module.DefineType(type.Name, TypeAttributes.Public, parent, new[] { type });
+            newType = module.DefineType(type.FullName, TypeAttributes.Public, parent, new[] { type });
             executeMethod = parent.GetMethod("Execute");
             backingObject = parent.GetField("backingObject");
         }

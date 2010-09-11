@@ -42,7 +42,7 @@ namespace LightProxy
 
         private static object GetInstance(AssemblyBuilder assembly, Type type, object backingObject, IInterceptor[] interceptors, MethodInfo[] methods)
         {
-            var instance = (ProxyBase) assembly.CreateInstance(type.Name);
+            var instance = (ProxyBase) assembly.CreateInstance(type.FullName);
             instance.InitializeProxy(backingObject, interceptors, methods);
             return instance;
         }
